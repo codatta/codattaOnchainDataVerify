@@ -138,7 +138,6 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
   return (
     <div className="max-w-6xl mx-auto py-10 px-6">
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Submission JSON Section */}
         <div className="space-y-2">
           <div className="flex items-center gap-2 flex-wrap">
             <label className="text-white font-bold">
@@ -178,7 +177,6 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
           )}
         </div>
 
-        {/* Submission ID Section */}
         <div className="space-y-2">
           <div className="flex items-center gap-2 flex-wrap">
             <label className="text-white font-bold">
@@ -211,7 +209,6 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
           )}
         </div>
 
-        {/* WALLET address Section */}
         <div className="space-y-2">
           <label className="text-white font-bold block">
             WALLET address
@@ -236,7 +233,6 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
           )}
         </div>
 
-        {/* Quality Section */}
         <div className="space-y-2">
           <div className="flex items-center gap-2 flex-wrap">
             <label className="text-white font-bold">
@@ -268,7 +264,6 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
           </div>
         </div>
 
-        {/* Verify Fingerprint Button */}
         <div className="pt-4">
           <button
             type="submit"

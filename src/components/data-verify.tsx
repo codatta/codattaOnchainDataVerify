@@ -1,11 +1,8 @@
 import { useState, useEffect, useMemo } from 'react'
 import { contract as onchainDataContract } from '../contracts/onchain-data.abi'
-import { createPublicClient, http } from 'viem'
-import DoubleCheckSVG from '../assets/images/check-double-fill.svg'
-import LoaderSVG from '../assets/images/loader-line.svg'
-import CloseSVG from '../assets/images/close-line.svg'
+import { createPublicClient, http, encodeAbiParameters, keccak256 } from 'viem'
+import { canonicalize } from 'json-canonicalize'
 import { IFormData } from './form'
-import api from '../apis/verification.api'
 
 function StepCalculatingFingerprint({
   verifyData,
@@ -17,15 +14,31 @@ function StepCalculatingFingerprint({
   const [loading, setLoading] = useState(true)
   const [fingerprint, setFingerprint] = useState('')
 
+  function calculateLocalFingerprint(verifyData: IFormData): string {
+    try {
+      const submissionData = canonicalize(verifyData.submissionJson)
+      
+      const encodedData = encodeAbiParameters(
+        [
+          { name: 'address', type: 'address' },
+          { name: 'quality', type: 'string' },
+          { name: 'submissionData', type: 'string' }
+        ],
+        [verifyData.walletAddress as `0x${string}`, verifyData.quality, submissionData]
+      )
+      
+      const fingerprint = keccak256(encodedData)
+      
+      return fingerprint
+    } catch (err: any) {
+      throw new Error(`Failed to calculate fingerprint: ${err.message}`)
+    }
+  }
+
   async function getFingerprint(verifyData: IFormData) {
     setLoading(true)
     try {
-      const res = await api.generateFingerprint({
-        submit_data: verifyData.submissionJson,
-        address: verifyData.walletAddress,
-        quality: verifyData.quality
-      })
-      const fingerprint = `0x${res.data.fingerprint}`
+      const fingerprint = calculateLocalFingerprint(verifyData)
       setFingerprint(fingerprint)
       setTimeout(() => {
         onComplete(fingerprint)
@@ -45,9 +58,9 @@ function StepCalculatingFingerprint({
     <div className="flex gap-2 p-3">
       <div className="flex w-5 flex-col items-center pt-1">
         {loading ? (
-          <img src={LoaderSVG} className="size-5 animate-spin" alt="" />
+          <img src="/images/loader-line.svg" className="size-5 animate-spin" alt="" />
         ) : (
-          <img src={DoubleCheckSVG} className="size-5 text-green-400" alt="" />
+          <img src="/images/check-double-fill.svg" className="size-5 text-green-400" alt="" />
         )}
         <div className="relative top-2 h-[calc(100%-32px)] w-[1px] bg-white/10"></div>
       </div>
@@ -56,7 +69,7 @@ function StepCalculatingFingerprint({
           {loading ? 'Calculating local fingerprint...' : 'Complete the local fingerprint generation'}
         </h3>
         <p className="text-sm text-[#BBBBBE]">
-          We hash your JSON + address + quality locally to calculate your unique fingerprint.
+          We canonicalize your JSON using JCS, then hash it with address + quality locally to calculate your unique fingerprint.
         </p>
         {!loading && (
           <div className="mt-4 rounded-lg bg-[#1a1a24] p-3">
@@ -121,9 +134,9 @@ function StepReadOnChainFingerprint({
     <div className="flex gap-2 p-3">
       <div className="flex w-5 flex-col items-center pt-1">
         {loading ? (
-          <img src={LoaderSVG} className="size-5 animate-spin" alt="" />
+          <img src="/images/loader-line.svg" className="size-5 animate-spin" alt="" />
         ) : (
-          <img src={DoubleCheckSVG} className="size-5 text-green-400" alt="" />
+          <img src="/images/check-double-fill.svg" className="size-5 text-green-400" alt="" />
         )}
         <div className="relative top-2 w-[1px] bg-white/10"></div>
       </div>
@@ -170,9 +183,9 @@ function StepComparingFingerprints({
     <div className="flex gap-2 p-3">
       <div className="flex w-5 flex-col items-center pt-1">
         {loading ? (
-          <img src={LoaderSVG} className="size-5 animate-spin" alt="" />
+          <img src="/images/loader-line.svg" className="size-5 animate-spin" alt="" />
         ) : (
-          <img src={DoubleCheckSVG} className="size-5 text-green-400" alt="" />
+          <img src="/images/check-double-fill.svg" className="size-5 text-green-400" alt="" />
         )}
         <div className="relative top-2 h-[calc(100%-32px)] w-[1px] bg-white/10"></div>
       </div>
@@ -192,7 +205,7 @@ function StepComparingFingerprints({
           {result == true ? (
             <div>
               <div className="flex items-center gap-2">
-                <img src={DoubleCheckSVG} className="size-5 text-green-400" alt="" />
+              <img src="/images/check-double-fill.svg" className="size-5 text-green-400" alt="" />
                 <p className="text-base text-green-400">Verification successful</p>
               </div>
               <p className="text-sm text-[#BBBBBE]">
@@ -202,7 +215,7 @@ function StepComparingFingerprints({
           ) : (
             <div>
               <div className="flex items-center gap-2">
-                <img src={CloseSVG} className="size-5 text-[#D92B2B]" alt="" />
+                <img src="/images/close-line.svg" className="size-5 text-[#D92B2B]" alt="" />
                 <p className="text-base text-[#D92B2B]">Verification failed</p>
               </div>
               <p className="text-sm text-[#BBBBBE]">
@@ -223,9 +236,9 @@ function StepTaskResult(props: { result: boolean }) {
     <div className="flex gap-2 p-3">
       <div className="flex w-5 flex-col items-center pt-1">
         {result ? (
-          <img src={DoubleCheckSVG} className="size-5 text-green-400" alt="" />
+          <img src="/images/check-double-fill.svg" className="size-5 text-green-400" alt="" />
         ) : (
-          <img src={CloseSVG} className="size-5 text-[#D92B2B]" alt="" />
+          <img src="/images/close-line.svg" className="size-5 text-[#D92B2B]" alt="" />
         )}
         <div className="relative top-2 h-[calc(100%-32px)] w-[1px] bg-white/10"></div>
       </div>
