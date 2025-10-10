@@ -144,8 +144,9 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
               Submission JSON
             </label>
             <a
-              href="#"
+              href="https://docs.codatta.io/codatta/fingerprint-verification"
               className="text-[#875DFF] underline text-sm transition-colors"
+              target="_blank"
             >
               JSON Assembly Tutorial
             </a>
@@ -183,8 +184,9 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
               Submission ID *
             </label>
             <a
-              href="#"
+              href="https://docs.codatta.io/codatta/fingerprint-verification#generate-the-fingerprint-jcs-abi.encode-keccak256"
               className="text-[#875DFF] underline text-sm transition-colors"
+              target="_blank"
             >
               Explorer Tutorial (Step 2.1)
             </a>
